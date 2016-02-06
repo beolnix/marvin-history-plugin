@@ -82,7 +82,9 @@ sourceSets {
 }
 
 
-dependencies {    
+dependencies {
+    compile 'com.beolnix.marvin:history-service-api:0.1.0'
+
     compile group: 'com.beolnix.marvin', name: 'marvin-api', version: MARVIN_API_VERSION, changing: true
     compile group: 'com.beolnix.marvin', name: 'marvin-plugin-utils', version: MARVIN_UTILS_VERSION, changing: true
     compile "org.apache.felix:org.apache.felix.framework:4.0.1"
@@ -91,6 +93,9 @@ dependencies {
     compile 'org.springframework:spring-context'
     compile 'org.springframework:spring-beans'
     compile "org.springframework.cloud:spring-cloud-starter-feign"
+    compile 'com.netflix.feign:feign-jackson:6.1.2'
+    compile 'com.fasterxml.jackson.core:jackson-core'
+    compile 'com.fasterxml.jackson.core:jackson-databind'
 
     compile "org.codehaus.groovy:groovy-all:${GROOVY_VERSION}"
     compile "xml-apis:xml-apis:${XML_APIS_VERSION}"
