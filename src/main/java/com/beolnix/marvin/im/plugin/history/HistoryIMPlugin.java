@@ -1,6 +1,5 @@
 package com.beolnix.marvin.im.plugin.history;
 
-import com.beolnix.marvin.config.api.model.PluginConfig;
 import com.beolnix.marvin.im.api.IMSessionManager;
 import com.beolnix.marvin.im.api.model.IMIncomingMessage;
 import com.beolnix.marvin.im.api.model.IMOutgoingMessage;
@@ -8,8 +7,10 @@ import com.beolnix.marvin.im.api.model.IMOutgoingMessageBuilder;
 import com.beolnix.marvin.im.plugin.PluginUtils;
 import com.beolnix.marvin.plugins.api.IMPlugin;
 import com.beolnix.marvin.plugins.api.IMPluginState;
+import com.beolnix.marvin.plugins.api.PluginConfig;
 import org.apache.log4j.Logger;
 import org.osgi.framework.BundleContext;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.util.*;
@@ -21,45 +22,34 @@ import java.util.*;
 public class HistoryIMPlugin implements IMPlugin {
 
     // dependencies
-    private final Logger logger;
-    private final BundleContext bundleContext;
-    private final PluginUtils pluginUtils = new PluginUtils();
-    private final File pluginDirPath;
+    private Logger logger;
+    private File pluginDirPath;
 
     // state
     private IMSessionManager imSessionManager;
     private IMPluginState state = IMPluginState.NOT_INITIALIZED;
     private PluginConfig pluginConfig;
+    private String serviceUrl;
 
     // constants
+    public static final String PROP_SERVICE_URL = "service.url";
     private static final String COMMAND_HELP = "help";
     public static final String COMMAND_GET_LINK = "link";
     private static final List<String> commandsList = Arrays.asList(COMMAND_HELP, COMMAND_GET_LINK);
 
-    public HistoryIMPlugin(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-        logger = pluginUtils.getLogger(bundleContext, getPluginName());
-        pluginDirPath = pluginUtils.getPluginHomeDir(bundleContext, getPluginName());
-    }
-
     @Override
-    public void setIMSessionManager(IMSessionManager imSessionManager) {
+    public void init(PluginConfig pluginConfig, IMSessionManager imSessionManager) {
         this.imSessionManager = imSessionManager;
-        updateState();
-    }
-
-    @Override
-    public void setPluginConfig(PluginConfig pluginConfig) {
         this.pluginConfig = pluginConfig;
-        updateState();
-    }
+        this.logger = pluginConfig.getLogger();
+        this.serviceUrl = pluginConfig.getPropertyByName(PROP_SERVICE_URL);
 
-    private void updateState() {
-        if (pluginConfig != null && imSessionManager != null) {
-            this.state = IMPluginState.INITIALIZED;
+        if (StringUtils.isEmpty(serviceUrl)) {
+            logger.error("Got empty history service url, plugin will not process any request.");
         } else {
-            this.state = IMPluginState.NOT_INITIALIZED;
+            this.state = IMPluginState.INITIALIZED;
         }
+
     }
 
     @Override
