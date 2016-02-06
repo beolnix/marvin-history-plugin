@@ -1,5 +1,6 @@
 package com.beolnix.marvin.im.plugin;
 
+import com.beolnix.marvin.im.plugin.history.configuration.HistoryPluginConfiguration;
 import com.beolnix.marvin.plugins.api.IMPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -16,21 +17,15 @@ public class Activator implements BundleActivator {
 
     @Override
     public void start(BundleContext bundleContext) {
-        ApplicationContext ctx = setupSpringAppContext(bundleContext);
+        ApplicationContext ctx = setupSpringAppContext();
         IMPlugin plugin = ctx.getBean(IMPlugin.class);
 
         bundleContext.registerService(IMPlugin.class.getName(), plugin, null);
     }
 
-    public ApplicationContext setupSpringAppContext(BundleContext bundleContext) {
+    public ApplicationContext setupSpringAppContext() {
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-        ApplicationContext parentAppCtx = new AnnotationConfigApplicationContext();
-        ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) parentAppCtx).getBeanFactory();
-        beanFactory.registerSingleton("bundleContext", bundleContext);
-        ((ConfigurableApplicationContext) parentAppCtx).refresh();
-
-        String[] configLocations = {"/plugin-context.xml"};
-        return new ClassPathXmlApplicationContext(configLocations, parentAppCtx);
+        return new AnnotationConfigApplicationContext(HistoryPluginConfiguration.class);
     }
 
     @Override
