@@ -7,10 +7,6 @@
          http://www.springframework.org/schema/task
          http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
-
-
-    <bean id="historyIMPlugin" class="com.beolnix.marvin.im.plugin.history.HistoryIMPlugin">
-        <constructor-arg name="bundleContext" ref="bundleContext"/>
-    </bean>
+    <bean id="historyIMPlugin" class="com.beolnix.marvin.im.plugin.history.HistoryIMPlugin"/>
 
 </beans>
