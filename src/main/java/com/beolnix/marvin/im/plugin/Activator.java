@@ -1,6 +1,5 @@
 package com.beolnix.marvin.im.plugin;
 
-import com.beolnix.marvin.im.plugin.history.configuration.HistoryPluginConfiguration;
 import com.beolnix.marvin.plugins.api.IMPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
