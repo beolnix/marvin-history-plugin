@@ -41,7 +41,8 @@ public class HistoryIMPlugin implements IMPlugin {
     public void init(PluginConfig pluginConfig, IMSessionManager imSessionManager) {
         this.imSessionManager = imSessionManager;
         this.pluginConfig = pluginConfig;
-        this.logger = pluginConfig.getLogger();
+        PluginUtils pluginUtils = new PluginUtils();
+        this.logger = pluginUtils.getLogger(pluginConfig.getLogsDirPath(), getPluginName());
         this.serviceUrl = pluginConfig.getPropertyByName(PROP_SERVICE_URL);
 
         if (StringUtils.isEmpty(serviceUrl)) {
