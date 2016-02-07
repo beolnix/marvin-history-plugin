@@ -25,6 +25,7 @@ def LOG4J_VERSION = '1.2.16'
 def GROOVY_VERSION = '2.4.4'
 def JUNIT_VERSION = '4.12'
 def XML_APIS_VERSION = '1.3.04'
+def FEIGN_VER = '6.1.2'
 
 sourceCompatibility = JDK_VERSION
 targetCompatibility = JDK_VERSION
@@ -102,8 +103,8 @@ dependencies {
 
     compile "log4j:log4j"
 
-    testCompile "junit:junit"
-    testCompile 'org.springframework:spring-test:4.2.4.RELEASE'
+    testCompile "junit:junit:${JUNIT_VERSION}"
+    testCompile "com.github.tomakehurst:wiremock:1.57"
 }
 
 jar {

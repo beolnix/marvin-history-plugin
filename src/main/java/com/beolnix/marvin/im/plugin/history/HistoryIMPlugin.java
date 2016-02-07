@@ -30,20 +30,19 @@ public class HistoryIMPlugin implements IMPlugin {
     private IMPluginState state = IMPluginState.NOT_INITIALIZED;
     private PluginConfig pluginConfig;
     private String serviceUrl;
+    private HistoryService historyService;
 
     // constants
-    public static final String PROP_SERVICE_URL = "service.url";
+    public static final String PLUGIN_NAME = "HistoryIMPlugin";
     private static final String COMMAND_HELP = "help";
     public static final String COMMAND_GET_LINK = "link";
     private static final List<String> commandsList = Arrays.asList(COMMAND_HELP, COMMAND_GET_LINK);
 
     @Override
     public void init(PluginConfig pluginConfig, IMSessionManager imSessionManager) {
-        this.imSessionManager = imSessionManager;
-        this.pluginConfig = pluginConfig;
         PluginUtils pluginUtils = new PluginUtils();
         this.logger = pluginUtils.getLogger(pluginConfig.getLogsDirPath(), getPluginName());
-        this.serviceUrl = pluginConfig.getPropertyByName(PROP_SERVICE_URL);
+        this.historyService = new HistoryService(pluginConfig);
 
         if (StringUtils.isEmpty(serviceUrl)) {
             logger.error("Got empty history service url, plugin will not process any request.");
@@ -58,7 +57,7 @@ public class HistoryIMPlugin implements IMPlugin {
         if (logger != null) {
             logger.trace("getPluginName invoked");
         }
-        return this.getClass().getSimpleName();
+        return PLUGIN_NAME;
     }
 
     @Override
@@ -77,22 +76,30 @@ public class HistoryIMPlugin implements IMPlugin {
     }
 
     @Override
-    public void process(IMIncomingMessage imIncomingMessage) {
-        if (COMMAND_GET_LINK.equals(imIncomingMessage.getCommandName())) {
-            imSessionManager.sendMessage(createOutMsg(imIncomingMessage, "new post invoked"));
-        } else if (COMMAND_HELP.equals(imIncomingMessage.getCommandName())) {
+    public void process(IMIncomingMessage msg) {
+        if (!IMPluginState.INITIALIZED.equals(state)) {
+            if (logger != null) {
+                logger.error("plugin hasn't been initialized yet. can't process msg: " + msg);
+                return;
+            }
+        }
+
+        if (COMMAND_GET_LINK.equals(msg.getCommandName())) {
+            imSessionManager.sendMessage(createOutMsg(msg, "new post invoked"));
+        } else if (COMMAND_HELP.equals(msg.getCommandName())) {
             imSessionManager.sendMessage(
                     createOutMsg(
-                            imIncomingMessage,
+                            msg,
                             "* - history plugin intercept all messages"
                     ),
                     createOutMsg(
-                            imIncomingMessage,
+                            msg,
                             COMMAND_GET_LINK + " - returns link to the history page"
                     )
             );
         } else {
-
+            logger.debug("Persisting new msg: " + msg.getAuthor() + " - " + msg.getRawMessageBody());
+            historyService.newMessage(msg);
         }
     }
 
