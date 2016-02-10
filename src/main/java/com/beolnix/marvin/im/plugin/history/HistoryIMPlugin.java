@@ -4,12 +4,15 @@ import com.beolnix.marvin.im.api.IMSessionManager;
 import com.beolnix.marvin.im.api.model.IMIncomingMessage;
 import com.beolnix.marvin.im.api.model.IMOutgoingMessage;
 import com.beolnix.marvin.im.api.model.IMOutgoingMessageBuilder;
+import com.beolnix.marvin.im.plugin.HistoryConfiguration;
 import com.beolnix.marvin.im.plugin.PluginUtils;
 import com.beolnix.marvin.plugins.api.IMPlugin;
 import com.beolnix.marvin.plugins.api.IMPluginState;
 import com.beolnix.marvin.plugins.api.PluginConfig;
 import org.apache.log4j.Logger;
 import org.osgi.framework.BundleContext;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
@@ -31,6 +34,7 @@ public class HistoryIMPlugin implements IMPlugin {
     private PluginConfig pluginConfig;
     private String serviceUrl;
     private HistoryService historyService;
+    private ApplicationContext ctx;
 
     // constants
     public static final String PLUGIN_NAME = "HistoryIMPlugin";
@@ -40,9 +44,10 @@ public class HistoryIMPlugin implements IMPlugin {
 
     @Override
     public void init(PluginConfig pluginConfig, IMSessionManager imSessionManager) {
+        this.imSessionManager = imSessionManager;
+        this.pluginConfig = pluginConfig;
         PluginUtils pluginUtils = new PluginUtils();
-        this.logger = pluginUtils.getLogger(pluginConfig.getLogsDirPath(), getPluginName());
-        this.historyService = new HistoryService(pluginConfig);
+        Logger logger = pluginUtils.getLogger(pluginConfig.getLogsDirPath(), PLUGIN_NAME);
 
         if (StringUtils.isEmpty(serviceUrl)) {
             logger.error("Got empty history service url, plugin will not process any request.");
@@ -50,6 +55,20 @@ public class HistoryIMPlugin implements IMPlugin {
             this.state = IMPluginState.INITIALIZED;
         }
 
+        this.ctx = createContext(pluginConfig, logger, imSessionManager);
+        this.historyService = ctx.getBean(HistoryService.class);
+    }
+
+    private ApplicationContext createContext(PluginConfig pluginConfig, Logger logger, IMSessionManager imSessionManager) {
+        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.getBeanFactory().registerSingleton("pluginConfig", pluginConfig);
+        ctx.getBeanFactory().registerSingleton("logger", logger);
+        ctx.getBeanFactory().registerSingleton("imSessionManager", imSessionManager);
+        ctx.register(HistoryConfiguration.class);
+        ctx.refresh();
+
+        return ctx;
     }
 
     @Override
