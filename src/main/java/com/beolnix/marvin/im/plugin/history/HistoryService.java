@@ -13,6 +13,7 @@ import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.stereotype.Service;
 
 /**
@@ -38,7 +39,7 @@ public class HistoryService {
     public static final String PROP_SERVICE_AUTH_PASS = "service.auth.pass";
 
     @Autowired
-    public HistoryService(PluginConfig pluginConfig, Logger logger) {
+    public HistoryService(PluginConfig pluginConfig, Logger logger, ChatApi chatApi) {
         this.pluginConfig = pluginConfig;
         this.logger = logger;
         this.baseUrl = pluginConfig.getPropertyByName(PROP_SERVICE_URL);

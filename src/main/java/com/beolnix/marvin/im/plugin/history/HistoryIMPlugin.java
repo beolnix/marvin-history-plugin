@@ -11,6 +11,7 @@ import com.beolnix.marvin.plugins.api.IMPluginState;
 import com.beolnix.marvin.plugins.api.PluginConfig;
 import org.apache.log4j.Logger;
 import org.osgi.framework.BundleContext;
+import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.StringUtils;

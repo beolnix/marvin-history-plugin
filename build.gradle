@@ -97,6 +97,8 @@ dependencies {
     compile 'com.netflix.feign:feign-jackson:6.1.2'
     compile 'com.fasterxml.jackson.core:jackson-core'
     compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile 'org.springframework.cloud:spring-cloud-starter-ribbon'
+    compile 'org.springframework.boot:spring-boot-starter-security'
 
     compile "org.codehaus.groovy:groovy-all:${GROOVY_VERSION}"
     compile "xml-apis:xml-apis:${XML_APIS_VERSION}"
@@ -125,7 +127,17 @@ jar {
                 'Bundle-ClassPath': cp
     }
 
-    from configurations.runtime
+    from(configurations.compile.filter{ (it.name.startsWith("history-service-api")
+            || it.name.startsWith("ribbon")
+            || it.name.startsWith("spring"))}.collect { it.isDirectory() ? it : zipTree(it) }) {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+
+    from configurations.runtime.filter{(!it.name.startsWith("history-service-api")
+            || !it.name.startsWith("ribbon")
+            || !it.name.startsWith("spring"))}
 }
 
 
