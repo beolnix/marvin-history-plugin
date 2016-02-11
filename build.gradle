@@ -127,6 +127,7 @@ jar {
                 'Bundle-ClassPath': cp
     }
 
+    // workaround package scan in osgi bundle
     from(configurations.compile.filter{ (it.name.startsWith("history-service-api")
             || it.name.startsWith("ribbon")
             || it.name.startsWith("spring"))}.collect { it.isDirectory() ? it : zipTree(it) }) {

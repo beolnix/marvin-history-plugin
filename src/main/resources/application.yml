@@ -1,14 +1,3 @@
-ribbon.client.name: history
-
-chat:
-  ribbon:
-    listOfServers: http://beolnix.com
-
-message:
-  ribbon:
-    listOfServers: http://beolnix.com
-
-
 history:
   ribbon:
     listOfServers: http://beolnix.com
