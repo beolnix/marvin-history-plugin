@@ -1,4 +1,4 @@
-package com.beolnix.marvin.im.plugin.history;
+package com.beolnix.marvin.im.plugin.history.configuration;
 
 import org.springframework.context.annotation.Configuration;
 

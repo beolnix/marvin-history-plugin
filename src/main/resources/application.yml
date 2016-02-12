@@ -1,6 +1,0 @@
-history:
-  ribbon:
-    listOfServers: http://beolnix.com
-
-security.basic.enabled: false
-management.security.enabled: false

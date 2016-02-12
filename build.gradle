@@ -136,9 +136,10 @@ jar {
         exclude "META-INF/*.RSA"
     }
 
-    from configurations.runtime.filter{(!it.name.startsWith("history-service-api")
-            || !it.name.startsWith("ribbon")
-            || !it.name.startsWith("spring"))}
+    from configurations.runtime
+//            .filter{(!it.name.startsWith("history-service-api")
+//            || !it.name.startsWith("ribbon")
+//            || !it.name.startsWith("spring"))}
 }
 
 

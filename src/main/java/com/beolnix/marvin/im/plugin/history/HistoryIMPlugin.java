@@ -4,19 +4,17 @@ import com.beolnix.marvin.im.api.IMSessionManager;
 import com.beolnix.marvin.im.api.model.IMIncomingMessage;
 import com.beolnix.marvin.im.api.model.IMOutgoingMessage;
 import com.beolnix.marvin.im.api.model.IMOutgoingMessageBuilder;
-import com.beolnix.marvin.im.plugin.HistoryConfiguration;
+import com.beolnix.marvin.im.plugin.history.configuration.Constants;
+import com.beolnix.marvin.im.plugin.history.configuration.HistoryConfiguration;
 import com.beolnix.marvin.im.plugin.PluginUtils;
 import com.beolnix.marvin.plugins.api.IMPlugin;
 import com.beolnix.marvin.plugins.api.IMPluginState;
 import com.beolnix.marvin.plugins.api.PluginConfig;
-import org.apache.log4j.Logger;
-import org.osgi.framework.BundleContext;
-import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
+import org.apache.log4j.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.StringUtils;
 
-import java.io.File;
 import java.util.*;
 
 /**
@@ -25,17 +23,12 @@ import java.util.*;
 
 public class HistoryIMPlugin implements IMPlugin {
 
-    // dependencies
-    private Logger logger;
-    private File pluginDirPath;
-
     // state
     private IMSessionManager imSessionManager;
     private IMPluginState state = IMPluginState.NOT_INITIALIZED;
-    private PluginConfig pluginConfig;
-    private String serviceUrl;
     private HistoryService historyService;
     private ApplicationContext ctx;
+    private Optional<Logger> logger = Optional.empty();
 
     // constants
     public static final String PLUGIN_NAME = "HistoryIMPlugin";
@@ -45,38 +38,20 @@ public class HistoryIMPlugin implements IMPlugin {
 
     @Override
     public void init(PluginConfig pluginConfig, IMSessionManager imSessionManager) {
+        this.logger = Optional.of(new PluginUtils().getLogger(pluginConfig.getLogsDirPath(), PLUGIN_NAME));
         this.imSessionManager = imSessionManager;
-        this.pluginConfig = pluginConfig;
-        PluginUtils pluginUtils = new PluginUtils();
-        Logger logger = pluginUtils.getLogger(pluginConfig.getLogsDirPath(), PLUGIN_NAME);
 
-        if (StringUtils.isEmpty(serviceUrl)) {
-            logger.error("Got empty history service url, plugin will not process any request.");
-        } else {
-            this.state = IMPluginState.INITIALIZED;
+        if (!isConfigValid(pluginConfig)) {
+            return;
         }
 
-        this.ctx = createContext(pluginConfig, logger, imSessionManager);
+        this.ctx = createContext(pluginConfig, imSessionManager);
         this.historyService = ctx.getBean(HistoryService.class);
-    }
-
-    private ApplicationContext createContext(PluginConfig pluginConfig, Logger logger, IMSessionManager imSessionManager) {
-        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-        ctx.getBeanFactory().registerSingleton("pluginConfig", pluginConfig);
-        ctx.getBeanFactory().registerSingleton("logger", logger);
-        ctx.getBeanFactory().registerSingleton("imSessionManager", imSessionManager);
-        ctx.register(HistoryConfiguration.class);
-        ctx.refresh();
-
-        return ctx;
+        this.state = IMPluginState.INITIALIZED;
     }
 
     @Override
     public String getPluginName() {
-        if (logger != null) {
-            logger.trace("getPluginName invoked");
-        }
         return PLUGIN_NAME;
     }
 
@@ -98,10 +73,8 @@ public class HistoryIMPlugin implements IMPlugin {
     @Override
     public void process(IMIncomingMessage msg) {
         if (!IMPluginState.INITIALIZED.equals(state)) {
-            if (logger != null) {
-                logger.error("plugin hasn't been initialized yet. can't process msg: " + msg);
-                return;
-            }
+            logError("plugin hasn't been initialized yet. can't process msg: " + msg);
+            return;
         }
 
         if (COMMAND_GET_LINK.equals(msg.getCommandName())) {
@@ -118,7 +91,7 @@ public class HistoryIMPlugin implements IMPlugin {
                     )
             );
         } else {
-            logger.debug("Persisting new msg: " + msg.getAuthor() + " - " + msg.getRawMessageBody());
+            logDebug("Persisting new msg: " + msg.getAuthor() + " - " + msg.getRawMessageBody());
             historyService.newMessage(msg);
         }
     }
@@ -153,5 +126,42 @@ public class HistoryIMPlugin implements IMPlugin {
     @Override
     public boolean isAllProtocolsSupported() {
         return true;
+    }
+
+    private boolean isConfigValid(PluginConfig pluginConfig) {
+        if (StringUtils.isEmpty(pluginConfig.getPropertyByName(Constants.PROP_SERVICE_URL))) {
+            logError("Got empty history service url, plugin will not process any request.");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private ApplicationContext createContext(PluginConfig pluginConfig, IMSessionManager imSessionManager) {
+        if (!logger.isPresent()) {
+            throw new IllegalStateException("logger must be initialized");
+        }
+
+        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.getBeanFactory().registerSingleton("pluginConfig", pluginConfig);
+        ctx.getBeanFactory().registerSingleton("logger", logger.get());
+        ctx.getBeanFactory().registerSingleton("imSessionManager", imSessionManager);
+        ctx.register(HistoryConfiguration.class);
+        ctx.refresh();
+
+        return ctx;
+    }
+
+    private void logError(String msg) {
+        if (logger.isPresent()) {
+            logger.get().error(msg);
+        }
+    }
+
+    private void logDebug(String msg) {
+        if (logger.isPresent()) {
+            logger.get().debug(msg);
+        }
     }
 }
