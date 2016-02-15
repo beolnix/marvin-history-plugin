@@ -11,13 +11,15 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator implements BundleActivator {
 
+    private HistoryIMPlugin historyIMPlugin = new HistoryIMPlugin();
+
     @Override
     public void start(BundleContext bundleContext) {
-        bundleContext.registerService(IMPlugin.class.getName(), new HistoryIMPlugin(), null);
+        bundleContext.registerService(IMPlugin.class.getName(), historyIMPlugin, null);
     }
 
     @Override
     public void stop(BundleContext context) {
-        // NOTE: The service is automatically unregistered.
+        historyIMPlugin.shutdown();
     }
 }

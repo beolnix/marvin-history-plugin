@@ -97,6 +97,7 @@ dependencies {
     compile 'com.netflix.feign:feign-jackson:6.1.2'
     compile 'com.fasterxml.jackson.core:jackson-core'
     compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.4.0")
     compile 'org.springframework.cloud:spring-cloud-starter-ribbon'
     compile 'org.springframework.boot:spring-boot-starter-security'
 
@@ -106,7 +107,9 @@ dependencies {
     compile "log4j:log4j"
 
     testCompile "junit:junit:${JUNIT_VERSION}"
-    testCompile "com.github.tomakehurst:wiremock:1.57"
+    testCompile 'com.github.tomakehurst:wiremock:1.57'
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+    testCompile 'org.mockito:mockito-all:1.10.19'
 }
 
 jar {

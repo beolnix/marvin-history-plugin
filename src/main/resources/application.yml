@@ -1,0 +1,13 @@
+spring.profiles.active: prod
+
+ribbon:
+  client.name: history
+  eureka:
+   enabled: false
+
+history:
+  ribbon:
+    listOfServers: https://history.buildloft.com
+
+security.basic.enabled: false
+management.security.enabled: false

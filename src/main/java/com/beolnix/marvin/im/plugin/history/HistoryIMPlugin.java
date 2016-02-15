@@ -12,6 +12,7 @@ import com.beolnix.marvin.plugins.api.IMPluginState;
 import com.beolnix.marvin.plugins.api.PluginConfig;
 import org.apache.log4j.*;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.StringUtils;
 
@@ -126,6 +127,12 @@ public class HistoryIMPlugin implements IMPlugin {
     @Override
     public boolean isAllProtocolsSupported() {
         return true;
+    }
+
+    public void shutdown() {
+        if (ctx != null) {
+            ((ConfigurableApplicationContext) ctx).close();
+        }
     }
 
     private boolean isConfigValid(PluginConfig pluginConfig) {

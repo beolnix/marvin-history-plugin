@@ -8,6 +8,7 @@ import com.beolnix.marvin.history.api.model.CreateMessageDTO;
 import com.beolnix.marvin.history.api.model.MessageDTO;
 import com.beolnix.marvin.im.api.model.IMIncomingMessage;
 import com.beolnix.marvin.plugins.api.PluginConfig;
+import feign.FeignException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,7 +58,12 @@ public class HistoryService {
     }
 
     private ChatDTO getOrCreateChatByName(String chatName, String protocol) {
-        ChatDTO chatDTO = chatApi.getChatByName(chatName);
+        ChatDTO chatDTO = null;
+        try {
+            chatDTO = chatApi.getChatByName(chatName);
+        } catch (FeignException e) {
+            // nop
+        }
         if (chatDTO == null) {
             logger.debug("Got null chat. Creating new one with name " + chatName);
             CreateChatDTO createChatDTO = new CreateChatDTO();
