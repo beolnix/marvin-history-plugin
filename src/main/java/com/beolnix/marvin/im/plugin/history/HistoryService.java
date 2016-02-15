@@ -58,6 +58,7 @@ public class HistoryService {
     }
 
     private ChatDTO getOrCreateChatByName(String chatName, String protocol) {
+        chatName = simplifyChatName(chatName);
         ChatDTO chatDTO = null;
         try {
             chatDTO = chatApi.getChatByName(chatName);
@@ -77,5 +78,8 @@ public class HistoryService {
         return chatDTO;
     }
 
+    private String simplifyChatName(String originalChatName) {
+        return originalChatName.replace(".", "-");
+    }
 
 }
