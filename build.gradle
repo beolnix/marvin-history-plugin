@@ -104,7 +104,9 @@ dependencies {
     compile "org.codehaus.groovy:groovy-all:${GROOVY_VERSION}"
     compile "xml-apis:xml-apis:${XML_APIS_VERSION}"
 
-    compile "log4j:log4j"
+    compile 'log4j:log4j'
+    compile 'org.slf4j:slf4j-log4j12'
+    compile 'org.slf4j:slf4j-api'
 
     testCompile "junit:junit:${JUNIT_VERSION}"
     testCompile 'com.github.tomakehurst:wiremock:1.57'
