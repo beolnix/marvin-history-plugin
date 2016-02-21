@@ -45,6 +45,7 @@ public class ChatControllerIntegrationTest {
     IMSessionManager imSessionManager;
 
     @Test
+    @Ignore
     public void createChat() {
         AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
         ctx.getBeanFactory().registerSingleton("pluginConfig", getPluginConfig());

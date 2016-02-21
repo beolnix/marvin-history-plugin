@@ -45,14 +45,13 @@ public class HistoryService {
             return;
         }
 
-        MessageDTO messageDTO = messageApi.createMessate(convert(msg, chatDTO));
+        MessageDTO messageDTO = messageApi.createMessate(chatDTO.getId(), convert(msg));
         logger.debug("Saved message: " + messageDTO.toString() + "; from chat: " + chatDTO.toString());
     }
 
-    private CreateMessageDTO convert(IMIncomingMessage msg, ChatDTO chatDTO) {
+    private CreateMessageDTO convert(IMIncomingMessage msg) {
         CreateMessageDTO createMessageDTO = new CreateMessageDTO();
-        createMessageDTO.setAutor(msg.getAuthor());
-        createMessageDTO.setChatId(chatDTO.getId());
+        createMessageDTO.setAuthor(msg.getAuthor());
         createMessageDTO.setMsg(msg.getRawMessageBody());
         return createMessageDTO;
     }
